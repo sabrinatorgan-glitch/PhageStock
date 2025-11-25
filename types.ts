@@ -22,8 +22,8 @@ export enum UserRole {
 
 export interface User {
   name: string;
-  email: string; // New: Strict email validation
-  bukId: string; // New: Buk Integration ID
+  email: string;
+  bukId: string;
   role: UserRole;
 }
 
@@ -33,11 +33,11 @@ export interface InventoryItem {
   name: string;
   description?: string;
   category: Category;
-  location: Location;
-  batchNumber: string; // Lote
-  expiryDate: string; // Vencimiento
+  location: Location | string;
+  batchNumber: string;
+  expiryDate: string;
   quantity: number;
-  unit: string; // kg, litros, unidades, cajas
+  unit: string;
   minStockLevel: number;
   lastCountDate?: string;
 }
@@ -51,13 +51,14 @@ export interface Requisition {
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'FULFILLED';
   requestDate: string;
   department: string;
-  // Delivery fields
+  requestedExpiryDate?: string;
   approvedBy?: string;
   approvalDate?: string;
   deliveredBy?: string;
   receivedBy?: string;
   deliveryDate?: string;
-  digitalSignature?: boolean; // True if signed
+  digitalSignature?: boolean;
+  fulfilledBatchNumber?: string;
 }
 
 export interface StockMovement {
@@ -68,13 +69,47 @@ export interface StockMovement {
   type: 'ENTRADA' | 'SALIDA' | 'TRANSFERENCIA';
   quantity: number;
   location: Location | string;
-  targetLocation?: Location | string; // For transfers
+  targetLocation?: Location | string;
+  batchNumber: string;
   date: string;
   reason: string;
   user: string;
+  isSynced?: boolean;
 }
 
 export interface AiInsight {
   type: 'WARNING' | 'SUGGESTION' | 'TREND';
   message: string;
+}
+
+// --- NEW PRODUCTION MODULE TYPES ---
+
+export interface RecipeIngredient {
+  sku: string;
+  name: string;
+  quantityRequired: number;
+  unit: string;
+}
+
+export interface Recipe {
+  id: string;
+  finalProductSku: string;
+  finalProductName: string;
+  description: string;
+  ingredients: RecipeIngredient[];
+  version: string;
+  active: boolean;
+}
+
+export interface ProductionOrder {
+  id: string;
+  recipeId: string;
+  productName: string;
+  targetQuantity: number;
+  producedQuantity?: number;
+  startDate: string;
+  endDate?: string;
+  status: 'PLANNED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  assignedTo?: string;
+  batchOutput?: string;
 }

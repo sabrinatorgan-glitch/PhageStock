@@ -86,19 +86,18 @@ export const suggestSkuNamingConvention = async (
 ): Promise<string> => {
   try {
     const prompt = `
-      Actúa como un arquitecto de datos maestros para una farmacéutica.
+      Actúa como un arquitecto de datos maestros para una industria farmacéutica.
       El usuario quiere crear un nuevo SKU para el siguiente producto:
       Descripción: "${productDescription}"
-      Categoría: "${category}"
+      Categoría seleccionada: "${category}"
 
-      Reglas de PhageLab:
-      - Materia Prima empieza con MP-
-      - Producto Terminado empieza con PT-
-      - Laboratorio empieza com LAB-
-      - WIP empieza con WIP-
-      - Debe ser corto y único.
+      Reglas de Nomenclatura PhageLab (Estrictas):
+      1. Si la categoría es 'Materia Prima' -> Prefijo MP-{3 letras del nombre}-{001}
+      2. Si la categoría es 'Producto Terminado' -> Prefijo PT-{3 letras}-{001}
+      3. Si la categoría es 'Material de Laboratorio' -> Prefijo LAB-{TIPO}-{001}
+      4. Si la categoría es 'Producto en Proceso (WIP)' -> Prefijo WIP-{PROCESO}-{001} (Ej: WIP-SOL-001)
 
-      Genera 3 opciones de SKU y una breve explicación de por qué.
+      Genera 3 opciones de SKU únicas y profesionales.
       Formato JSON:
       [
         {"sku": "...", "reason": "..."},

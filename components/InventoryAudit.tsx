@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { InventoryItem, Location } from '../types';
-import { ClipboardCheck, Save, Search, AlertTriangle, CheckCircle, Download, Upload, FileUp } from 'lucide-react';
+import { ClipboardCheck, Save, Search, AlertTriangle, CheckCircle, Download, Upload, FileUp, ExternalLink } from 'lucide-react';
 
 interface InventoryAuditProps {
   items: InventoryItem[];
@@ -11,10 +10,8 @@ interface InventoryAuditProps {
 const InventoryAudit: React.FC<InventoryAuditProps> = ({ items, onApplyAdjustments }) => {
   const [selectedLocation, setSelectedLocation] = useState<Location | 'ALL'>('ALL');
   const [counts, setCounts] = useState<Record<string, number>>({});
-  const [externalCounts, setExternalCounts] = useState<Record<string, number>>({}); // Pulsar Data
+  const [externalCounts, setExternalCounts] = useState<Record<string, number>>({}); 
   const [auditFilter, setAuditFilter] = useState('');
-  
-  // Workflow state
   const [showConfirm, setShowConfirm] = useState(false);
   const [auditSuccess, setAuditSuccess] = useState(false);
   const [processedAdjustments, setProcessedAdjustments] = useState<{ itemId: string, itemSku: string, itemName: string, location: string, oldQty: number, newQty: number, variance: number }[]>([]);
@@ -32,17 +29,10 @@ const InventoryAudit: React.FC<InventoryAuditProps> = ({ items, onApplyAdjustmen
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Simulate CSV parsing (Simple mock: SKU,Qty)
     const reader = new FileReader();
     reader.onload = (event) => {
-      const text = event.target?.result as string;
-      // In a real app, use PapaParse. Here we mock random data matching some SKUs for demo
       const mockExternalData: Record<string, number> = {};
-      
-      // Simulate that the file contained some discrepancies
       items.forEach(item => {
-        // Randomly assign a difference to simulate "Pulsar vs PhageLab"
         if (Math.random() > 0.7) {
             mockExternalData[item.sku] = item.quantity + (Math.floor(Math.random() * 5) - 2); 
         } else {
@@ -50,16 +40,12 @@ const InventoryAudit: React.FC<InventoryAuditProps> = ({ items, onApplyAdjustmen
         }
       });
       setExternalCounts(mockExternalData);
-      alert('Datos de Pulsar importados correctamente (Simulación). Verifique la columna "Sistema Externo".');
+      alert('Datos de Pulsar importados correctamente (Simulación).');
     };
     reader.readAsText(file);
   };
 
   const handlePreSave = () => {
-    // Determine the target quantity: Manual Count (if present) > External Count (if present) > System Count
-    // But for audit, we only care if Manual Count exists.
-    // If user wants to adopt Pulsar count, they should type it in Manual Count or we could add a button "Adopt Pulsar".
-    
     const adjustments = items
       .filter(item => counts[item.id] !== undefined)
       .map(item => {
@@ -87,7 +73,6 @@ const InventoryAudit: React.FC<InventoryAuditProps> = ({ items, onApplyAdjustmen
       newQuantity: adj.newQty,
       variance: adj.variance
     }));
-    
     onApplyAdjustments(payload);
     setShowConfirm(false);
     setAuditSuccess(true);
@@ -145,12 +130,21 @@ const InventoryAudit: React.FC<InventoryAuditProps> = ({ items, onApplyAdjustmen
 
   return (
     <div className="space-y-6">
-      <header className="flex justify-between items-end">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
            <h2 className="text-3xl font-bold text-slate-800">Conciliación de Inventario</h2>
            <p className="text-slate-500">Cruce de datos (Pulsar vs PhageLab) y ajuste físico.</p>
+           <div className="flex gap-4 text-xs text-slate-500 mt-3">
+              <span className="font-semibold">Accesos directos ERP:</span>
+              <a href="https://pulsar.cl/Erp.aspx" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-blue-600 hover:underline bg-blue-50 px-2 py-1 rounded">
+                <ExternalLink size={12} /> Ir a Pulsar (Chile)
+              </a>
+              <a href="https://www.omie.com.br" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-indigo-600 hover:underline bg-indigo-50 px-2 py-1 rounded">
+                <ExternalLink size={12} /> Ir a Omie (Brasil)
+              </a>
+           </div>
         </div>
-        <label className="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-lg cursor-pointer hover:bg-slate-50 flex items-center gap-2 shadow-sm">
+        <label className="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-lg cursor-pointer hover:bg-slate-50 flex items-center gap-2 shadow-sm whitespace-nowrap">
            <FileUp size={18} /> Importar Datos Pulsar (CSV)
            <input type="file" className="hidden" accept=".csv,.xlsx" onChange={handleFileUpload} />
         </label>
@@ -188,10 +182,8 @@ const InventoryAudit: React.FC<InventoryAuditProps> = ({ items, onApplyAdjustmen
                 const physical = counts[item.id];
                 const external = externalCounts[item.sku]; // Match by SKU
                 const sysQty = item.quantity;
-                
                 const variance = physical !== undefined ? physical - sysQty : 0;
                 const externalDiff = external !== undefined && external !== sysQty;
-                
                 return (
                   <tr key={item.id} className="hover:bg-slate-50">
                     <td className="p-4">

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LayoutDashboard, Package, ClipboardList, Settings, TestTube2, BrainCircuit, Users, LogOut, ChevronDown, Shield, History } from 'lucide-react';
+import { LayoutDashboard, Package, ClipboardList, TestTube2, BrainCircuit, Users, LogOut, ChevronDown, Shield, History, Factory, Hammer } from 'lucide-react';
 import { User, UserRole } from '../types';
 
 interface SidebarProps {
@@ -12,19 +12,18 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, currentUser, onSwitchRole }) => {
   
-  // Define menu visibility based on role
   const menuItems = [
     { 
       id: 'dashboard', 
       label: 'Dashboard General', 
       icon: LayoutDashboard, 
-      roles: [UserRole.MASTER_ADMIN, UserRole.ADMIN] // Hidden for Common User
+      roles: [UserRole.MASTER_ADMIN, UserRole.ADMIN] 
     },
     { 
       id: 'inventory', 
       label: 'Gestión de Stock', 
       icon: Package, 
-      roles: [UserRole.MASTER_ADMIN, UserRole.ADMIN] // Hidden for Common User
+      roles: [UserRole.MASTER_ADMIN, UserRole.ADMIN] 
     },
     { 
       id: 'kardex', 
@@ -36,7 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, currentUser, on
       id: 'requisitions', 
       label: 'Lab & Pedidos', 
       icon: TestTube2, 
-      roles: [UserRole.MASTER_ADMIN, UserRole.ADMIN, UserRole.COMMON_USER] // Visible to ALL
+      roles: [UserRole.MASTER_ADMIN, UserRole.ADMIN, UserRole.COMMON_USER] 
     },
     { 
       id: 'audit', 
@@ -61,7 +60,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, currentUser, on
         <p className="text-xs text-slate-400 mt-1">Management System v2.0</p>
       </div>
       
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         {menuItems.map((item) => {
           if (!item.roles.includes(currentUser.role)) return null;
           
@@ -83,7 +82,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, currentUser, on
           );
         })}
 
-        {/* Master Admin Only Panel */}
         {currentUser.role === UserRole.MASTER_ADMIN && (
           <button
             onClick={() => setView('admin-panel')}
@@ -99,7 +97,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, currentUser, on
         )}
       </nav>
 
-      {/* User & Role Switcher Section (For Prototype Demo) */}
       <div className="p-4 border-t border-slate-700 bg-slate-800/50">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-full bg-pharma-600 flex items-center justify-center text-white font-bold">

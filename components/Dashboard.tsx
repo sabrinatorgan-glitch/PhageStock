@@ -217,7 +217,7 @@ const Dashboard: React.FC<DashboardProps> = ({ inventory, requisitions, onNaviga
               <span className="text-emerald-400 group-hover:translate-x-1 transition">→</span>
             </button>
             <button onClick={() => onNavigate('inventory')} className="w-full text-left px-4 py-3 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 text-sm font-medium transition flex items-center justify-between group border border-blue-100">
-              <span className="flex items-center gap-2"><Factory size={16}/> Registrar Producción</span>
+              <span className="flex items-center gap-2"><Factory size={16}/> Registrar Lote de Producción</span>
               <span className="text-blue-400 group-hover:translate-x-1 transition">→</span>
             </button>
             <button onClick={() => onNavigate('inventory')} className="w-full text-left px-4 py-3 rounded-lg bg-orange-50 hover:bg-orange-100 text-orange-800 text-sm font-medium transition flex items-center justify-between group border border-orange-100">

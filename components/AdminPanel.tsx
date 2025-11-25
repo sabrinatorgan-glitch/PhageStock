@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { User, UserRole, Location, Category } from '../types';
-import { Users, MapPin, Plus, Trash2, Shield, BrainCircuit, Wand2 } from 'lucide-react';
+import { Users, MapPin, Plus, Trash2, Shield, BrainCircuit, Wand2, AlertTriangle } from 'lucide-react';
 import { suggestSkuNamingConvention } from '../services/geminiService';
 
 interface AdminPanelProps {
@@ -22,9 +22,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, locations, onAddUser, on
 
   // SKU Gen State
   const [skuDesc, setSkuDesc] = useState('');
-  const [skuCat, setSkuCat] = useState('Materia Prima');
+  const [skuCat, setSkuCat] = useState<string>(Category.RAW_MATERIAL);
   const [skuSuggestions, setSkuSuggestions] = useState<any[]>([]);
   const [loadingSku, setLoadingSku] = useState(false);
+
+  // Delete Confirmation State
+  const [locationToDelete, setLocationToDelete] = useState<string | null>(null);
 
   const handleAddUser = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +54,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, locations, onAddUser, on
     }
   };
 
+  const confirmDeleteLocation = () => {
+    if (locationToDelete) {
+      onDeleteLocation(locationToDelete);
+      setLocationToDelete(null);
+    }
+  };
+
   const handleGenerateSku = async () => {
     if (!skuDesc) return;
     setLoadingSku(true);
@@ -59,7 +69,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, locations, onAddUser, on
         const parsed = JSON.parse(result);
         setSkuSuggestions(parsed);
     } catch (e) {
-        // Fallback if not pure JSON
         setSkuSuggestions([]);
         alert("La IA devolvió texto plano, ver consola.");
         console.log(result);
@@ -99,7 +108,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, locations, onAddUser, on
       <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 min-h-[400px]">
         {activeTab === 'users' && (
           <div className="space-y-8">
-            {/* Add User */}
             <form onSubmit={handleAddUser} className="bg-slate-50 p-6 rounded-lg border border-slate-200 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Nombre</label>
@@ -172,7 +180,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, locations, onAddUser, on
               {locations.map((loc, idx) => (
                 <div key={idx} className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition">
                   <div className="flex items-center gap-3"><div className="p-2 bg-slate-100 rounded text-slate-500"><MapPin size={18} /></div><span className="font-medium text-slate-700">{loc}</span></div>
-                  <button onClick={() => onDeleteLocation(loc)} className="text-red-400 hover:text-red-600"><Trash2 size={16} /></button>
+                  <button onClick={() => setLocationToDelete(loc)} className="text-red-400 hover:text-red-600"><Trash2 size={16} /></button>
                 </div>
               ))}
             </div>
@@ -223,6 +231,37 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, locations, onAddUser, on
             </div>
         )}
       </div>
+
+      {/* Confirmation Modal */}
+      {locationToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+            <div className="flex flex-col items-center text-center">
+              <div className="p-4 bg-red-100 rounded-full text-red-600 mb-4">
+                <AlertTriangle size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-2">¿Eliminar Bodega?</h3>
+              <p className="text-slate-600 mb-6">
+                ¿Está seguro de que desea eliminar la bodega <strong>{locationToDelete}</strong>? Esta acción no se puede deshacer.
+              </p>
+              <div className="flex w-full gap-3">
+                <button 
+                  onClick={() => setLocationToDelete(null)}
+                  className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  onClick={confirmDeleteLocation}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-bold"
+                >
+                  Sí, Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
