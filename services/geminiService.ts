@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 import { InventoryItem, Requisition } from "../types";
 
@@ -75,5 +76,45 @@ export const chatWithInventory = async (
     return response.text || "Sin respuesta.";
   } catch (error) {
     return "Lo siento, no pude procesar tu pregunta.";
+  }
+};
+
+// NEW: Suggest SKU Naming Convention
+export const suggestSkuNamingConvention = async (
+  productDescription: string,
+  category: string
+): Promise<string> => {
+  try {
+    const prompt = `
+      Actúa como un arquitecto de datos maestros para una farmacéutica.
+      El usuario quiere crear un nuevo SKU para el siguiente producto:
+      Descripción: "${productDescription}"
+      Categoría: "${category}"
+
+      Reglas de PhageLab:
+      - Materia Prima empieza con MP-
+      - Producto Terminado empieza con PT-
+      - Laboratorio empieza com LAB-
+      - WIP empieza con WIP-
+      - Debe ser corto y único.
+
+      Genera 3 opciones de SKU y una breve explicación de por qué.
+      Formato JSON:
+      [
+        {"sku": "...", "reason": "..."},
+        ...
+      ]
+    `;
+
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+        config: { responseMimeType: 'application/json' }
+    });
+
+    return response.text || "Error generando SKUs";
+  } catch (error) {
+    console.error(error);
+    return "Error en servicio de IA";
   }
 };

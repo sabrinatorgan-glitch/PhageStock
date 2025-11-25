@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { LayoutDashboard, Package, ClipboardList, Settings, TestTube2, BrainCircuit, Users, LogOut, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, Package, ClipboardList, Settings, TestTube2, BrainCircuit, Users, LogOut, ChevronDown, Shield, History } from 'lucide-react';
 import { User, UserRole } from '../types';
 
 interface SidebarProps {
@@ -17,19 +18,25 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, currentUser, on
       id: 'dashboard', 
       label: 'Dashboard General', 
       icon: LayoutDashboard, 
-      roles: [UserRole.MASTER_ADMIN, UserRole.ADMIN, UserRole.COMMON_USER] 
+      roles: [UserRole.MASTER_ADMIN, UserRole.ADMIN] // Hidden for Common User
     },
     { 
       id: 'inventory', 
       label: 'Gestión de Stock', 
       icon: Package, 
-      roles: [UserRole.MASTER_ADMIN, UserRole.ADMIN, UserRole.COMMON_USER] 
+      roles: [UserRole.MASTER_ADMIN, UserRole.ADMIN] // Hidden for Common User
+    },
+    { 
+      id: 'kardex', 
+      label: 'Kardex Global (WMS)', 
+      icon: History, 
+      roles: [UserRole.MASTER_ADMIN, UserRole.ADMIN] 
     },
     { 
       id: 'requisitions', 
       label: 'Lab & Pedidos', 
       icon: TestTube2, 
-      roles: [UserRole.MASTER_ADMIN, UserRole.ADMIN, UserRole.COMMON_USER] 
+      roles: [UserRole.MASTER_ADMIN, UserRole.ADMIN, UserRole.COMMON_USER] // Visible to ALL
     },
     { 
       id: 'audit', 
@@ -51,7 +58,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, currentUser, on
         <h1 className="text-xl font-bold bg-gradient-to-r from-pharma-500 to-teal-400 bg-clip-text text-transparent">
           PhageLab Stock
         </h1>
-        <p className="text-xs text-slate-400 mt-1">Management System v1.2</p>
+        <p className="text-xs text-slate-400 mt-1">Management System v2.0</p>
       </div>
       
       <nav className="flex-1 p-4 space-y-2">
@@ -75,6 +82,21 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, currentUser, on
             </button>
           );
         })}
+
+        {/* Master Admin Only Panel */}
+        {currentUser.role === UserRole.MASTER_ADMIN && (
+          <button
+            onClick={() => setView('admin-panel')}
+            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 mt-6 border-t border-slate-700/50 ${
+              currentView === 'admin-panel' 
+                ? 'bg-purple-900/50 text-purple-200 shadow-lg' 
+                : 'text-purple-300 hover:bg-slate-800 hover:text-purple-100'
+            }`}
+          >
+            <Shield size={20} />
+            <span className="font-medium">Panel de Control</span>
+          </button>
+        )}
       </nav>
 
       {/* User & Role Switcher Section (For Prototype Demo) */}

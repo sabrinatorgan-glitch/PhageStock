@@ -11,6 +11,7 @@ export enum Category {
   RAW_MATERIAL = 'Materia Prima',
   FINISHED_GOOD = 'Producto Terminado',
   LAB_SUPPLY = 'Material de Laboratorio',
+  WORK_IN_PROGRESS = 'Producto en Proceso (WIP)',
 }
 
 export enum UserRole {
@@ -21,6 +22,8 @@ export enum UserRole {
 
 export interface User {
   name: string;
+  email: string; // New: Strict email validation
+  bukId: string; // New: Buk Integration ID
   role: UserRole;
 }
 
@@ -62,9 +65,10 @@ export interface StockMovement {
   itemId: string;
   itemSku: string;
   itemName: string;
-  type: 'ENTRADA' | 'SALIDA';
+  type: 'ENTRADA' | 'SALIDA' | 'TRANSFERENCIA';
   quantity: number;
-  location: Location;
+  location: Location | string;
+  targetLocation?: Location | string; // For transfers
   date: string;
   reason: string;
   user: string;

@@ -46,6 +46,25 @@ const RequisitionSystem: React.FC<RequisitionSystemProps> = ({ items, requisitio
     setFormData({ requesterName: '', itemId: '', quantityRequested: 0, department: 'Control de Calidad' });
   };
 
+  const handleApprove = (req: Requisition) => {
+    // 1. Encontrar o item no inventário
+    const item = items.find(i => i.id === req.itemId);
+
+    if (!item) {
+      alert("Error: El ítem solicitado no se encuentra en el inventario.");
+      return;
+    }
+
+    // 2. Verificar se há estoque suficiente
+    if (item.quantity < req.quantityRequested) {
+       alert(`Stock insuficiente para aprobar esta solicitud.\n\nProducto: ${item.name}\nSolicitado: ${req.quantityRequested}\nDisponible: ${item.quantity} ${item.unit}\nUbicación: ${item.location}\n\nPor favor, rechace la solicitud o reponga el stock antes de aprobar.`);
+       return;
+    }
+
+    // 3. Se tudo estiver ok, prosseguir com a aprovação
+    onUpdateStatus(req.id, 'APPROVED');
+  };
+
   const handleDeliverySubmit = () => {
     if (showDeliveryModal && deliveryData.receivedBy && deliveryData.signatureChecked) {
       onUpdateStatus(showDeliveryModal, 'FULFILLED', {
@@ -83,7 +102,7 @@ const RequisitionSystem: React.FC<RequisitionSystemProps> = ({ items, requisitio
            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div><label className="block text-sm font-medium">Solicitante</label><input required className="w-full p-2 border rounded" value={formData.requesterName} onChange={e => setFormData({...formData, requesterName: e.target.value})} /></div>
               <div><label className="block text-sm font-medium">Departamento</label><select className="w-full p-2 border rounded" value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})}><option>Control de Calidad</option><option>I+D</option><option>Microbiología</option></select></div>
-              <div><label className="block text-sm font-medium">Item</label><select required className="w-full p-2 border rounded" value={formData.itemId} onChange={e => setFormData({...formData, itemId: e.target.value})}><option value="">Seleccione...</option>{labItems.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></div>
+              <div><label className="block text-sm font-medium">Item</label><select required className="w-full p-2 border rounded" value={formData.itemId} onChange={e => setFormData({...formData, itemId: e.target.value})}><option value="">Seleccione...</option>{labItems.map(item => <option key={item.id} value={item.id}>{item.name} ({item.quantity} disp.)</option>)}</select></div>
               <div><label className="block text-sm font-medium">Cantidad</label><input type="number" required min="1" className="w-full p-2 border rounded" value={formData.quantityRequested} onChange={e => setFormData({...formData, quantityRequested: Number(e.target.value)})} /></div>
               <div className="md:col-span-2 flex justify-end gap-2"><button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 bg-slate-100 rounded">Cancelar</button><button type="submit" className="px-4 py-2 bg-pharma-600 text-white rounded">Enviar</button></div>
            </form>
@@ -123,7 +142,7 @@ const RequisitionSystem: React.FC<RequisitionSystemProps> = ({ items, requisitio
                   <td className="p-4 text-center">
                     {req.status === 'PENDING' && canApprove && (
                       <div className="flex justify-center gap-2">
-                        <button onClick={() => onUpdateStatus(req.id, 'APPROVED')} className="p-1 text-blue-600 bg-blue-50 rounded hover:bg-blue-100" title="Aprobar"><Check size={18} /></button>
+                        <button onClick={() => handleApprove(req)} className="p-1 text-blue-600 bg-blue-50 rounded hover:bg-blue-100" title="Aprobar"><Check size={18} /></button>
                         <button onClick={() => onUpdateStatus(req.id, 'REJECTED')} className="p-1 text-red-600 bg-red-50 rounded hover:bg-red-100" title="Rechazar"><X size={18} /></button>
                       </div>
                     )}
