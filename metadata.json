@@ -1,0 +1,5 @@
+{
+  "name": "PhageLab Stock Management",
+  "description": "Sistema de gestión de inventarios para industria farmacéutica con control de lotes y ubicaciones múltiples.",
+  "requestFramePermissions": []
+}
